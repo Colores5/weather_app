@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/colors/colors.dart';
+import 'package:weather_app/weather_app.dart';
 
 class MainWeatherInfo extends StatelessWidget {
   const MainWeatherInfo({
     super.key,
+    this.color,
     required this.myConstants,
     required this.imageURL,
     required this.stateName,
@@ -11,6 +12,7 @@ class MainWeatherInfo extends StatelessWidget {
     required this.temp,
   });
 
+  final Color? color;
   final Constants myConstants;
   final String imageURL;
   final String stateName;
@@ -23,11 +25,11 @@ class MainWeatherInfo extends StatelessWidget {
       width: double.infinity,
       height: 170,
       decoration: BoxDecoration(
-        color: myConstants.primaryColor,
+        color: color ?? Theme.of(context).primaryColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: myConstants.primaryColor.withOpacity(0.5),
+            color: color ?? Theme.of(context).primaryColor.withAlpha(150),
             offset: const Offset(0, 25),
             blurRadius: 10,
             spreadRadius: -12,

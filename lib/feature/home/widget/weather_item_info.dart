@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 class WeatherItemInfo extends StatelessWidget {
   const WeatherItemInfo({
     super.key,
+    this.color,
     required this.value,
     required this.text,
     required this.unit,
     required this.url,
   });
 
+  final Color? color;
   final int value;
   final String text;
   final String unit;
@@ -20,9 +22,6 @@ class WeatherItemInfo extends StatelessWidget {
       children: [
         Text(
           text,
-          style: const TextStyle(
-            color: Colors.black54,
-          ),
         ),
         const SizedBox(
           height: 8,
@@ -33,7 +32,7 @@ class WeatherItemInfo extends StatelessWidget {
           width: 60,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
-            color: const Color(0xffE9E8F8),
+            color: color ?? Theme.of(context).primaryColor,
           ),
           child: Image.asset(
             'assets/$url.png',

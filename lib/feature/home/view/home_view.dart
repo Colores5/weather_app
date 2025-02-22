@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:weather_app/feature/home/bloc/cubit/theme_cubit.dart';
 import 'package:weather_app/feature/home/bloc/weather_screen_bloc.dart';
 import 'package:weather_app/weather_app.dart';
 
@@ -20,6 +21,8 @@ class _HomePageState extends State<HomePage> {
   final _weatherBloc = WeatherScreenBloc(
     weatherRepository: GetIt.I<WeatherRepository>(),
   );
+
+  final _themeCubit = GetIt.I<ThemeCubit>();
 
   var currentDate = DateFormat('EEEE, d MMMM').format(DateTime.now());
   String imageURL = "";
@@ -47,7 +50,20 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
+        actions: [
+          const Icon(Icons.sunny),
+          BlocBuilder<ThemeCubit, ThemeState>(
+            builder: (context, state) {
+              return Switch(
+                value: state.themeMode == ThemeMode.dark,
+                onChanged: (value) {
+                  _themeCubit.toggleTheme(value);
+                },
+              );
+            },
+          )
+        ],
+        automaticallyImplyLeading: true,
         centerTitle: true,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -57,7 +73,9 @@ class _HomePageState extends State<HomePage> {
               'assets/pin.png',
               width: 20,
             ),
-            const SizedBox(width: 4),
+            const SizedBox(
+              width: 4,
+            ),
             DropdownButtonHideUnderline(
               child: DropdownButton(
                 alignment: const Alignment(0, 0),
@@ -87,87 +105,87 @@ class _HomePageState extends State<HomePage> {
         onRefresh: () async {
           return _weatherBloc.add(LoadWeatherScreen(location: location));
         },
-        child: BlocBuilder<WeatherScreenBloc, WeatherScreenState>(
-          bloc: _weatherBloc,
-          builder: (context, state) {
-            if (state is WeatherScreenBlocLoaded) {
-              return Container(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      location,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 30,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: BlocBuilder<WeatherScreenBloc, WeatherScreenState>(
+            bloc: _weatherBloc,
+            builder: (context, state) {
+              if (state is WeatherScreenBlocLoaded) {
+                return Container(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        location,
+                        style: const TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    Text(
-                      currentDate,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
+                      Text(
+                        currentDate,
                       ),
-                    ),
-                    const SizedBox(
-                      height: 50,
-                    ),
-                    MainWeatherInfo(
-                        myConstants: myConstants,
-                        imageURL: state.currentWeatherInfo.weather[0].stateName
-                            .replaceAll(' ', '')
-                            .toLowerCase(),
-                        stateName:
-                            state.currentWeatherInfo.weather[0].stateName,
-                        description:
-                            state.currentWeatherInfo.weather[0].description,
-                        temp: state.currentWeatherInfo.main.temp),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 40,
+                      const SizedBox(
+                        height: 50,
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          WeatherItemInfo(
-                            value: state.currentWeatherInfo.wind.speed,
-                            text: 'Wind Speed',
-                            unit: 'km/h',
-                            url: 'windspeed',
-                          ),
-                          WeatherItemInfo(
-                            value: state.currentWeatherInfo.main.humidity,
-                            text: 'Humidity',
-                            unit: '%',
-                            url: 'humidity',
-                          ),
-                          WeatherItemInfo(
-                            value:
-                                state.currentWeatherInfo.main.maxTemp.round(),
-                            text: 'Max Temp',
-                            unit: '°',
-                            url: 'max-temp',
-                          ),
-                        ],
+                      MainWeatherInfo(
+                          myConstants: myConstants,
+                          imageURL: state
+                              .currentWeatherInfo.weather[0].stateName
+                              .replaceAll(' ', '')
+                              .toLowerCase(),
+                          stateName:
+                              state.currentWeatherInfo.weather[0].stateName,
+                          description:
+                              state.currentWeatherInfo.weather[0].description,
+                          temp: state.currentWeatherInfo.main.temp),
+                      const SizedBox(
+                        height: 30,
                       ),
-                    ),
-                  ],
-                ),
-              );
-            }
-            if (state is WeatherScreenBlocFailure) {
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 40,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            WeatherItemInfo(
+                              value: state.currentWeatherInfo.wind.speed,
+                              text: 'Wind Speed',
+                              unit: 'km/h',
+                              url: 'windspeed',
+                            ),
+                            WeatherItemInfo(
+                              value: state.currentWeatherInfo.main.humidity,
+                              text: 'Humidity',
+                              unit: '%',
+                              url: 'humidity',
+                            ),
+                            WeatherItemInfo(
+                              value:
+                                  state.currentWeatherInfo.main.maxTemp.round(),
+                              text: 'Max Temp',
+                              unit: '°',
+                              url: 'max-temp',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              if (state is WeatherScreenBlocFailure) {
+                return const Center(
+                  child: Text('Request failed'),
+                );
+              }
               return const Center(
-                child: Text('Request failed'),
+                child: CircularProgressIndicator(),
               );
-            }
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          },
+            },
+          ),
         ),
       ),
     );
