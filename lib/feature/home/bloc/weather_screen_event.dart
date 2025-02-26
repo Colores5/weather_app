@@ -2,8 +2,6 @@ part of 'weather_screen_bloc.dart';
 
 class WeatherScreenEvent {}
 
-class LoadWeatherScreen extends WeatherScreenEvent {
-  final String location;
+class LoadingWeatherScreen extends WeatherScreenEvent {}
 
-  LoadWeatherScreen({required this.location});
-}
+class LoadWeatherScreen extends WeatherScreenEvent {}

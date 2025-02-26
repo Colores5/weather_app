@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_app/feature/home/bloc/cubit/theme_cubit.dart';
 import 'package:weather_app/feature/home/bloc/weather_screen_bloc.dart';
+import 'package:weather_app/main.dart';
 import 'package:weather_app/weather_app.dart';
 
 @RoutePage()
@@ -19,24 +20,18 @@ class _HomePageState extends State<HomePage> {
   Constants myConstants = Constants();
 
   final _weatherBloc = WeatherScreenBloc(
-    weatherRepository: GetIt.I<WeatherRepository>(),
+    weatherRepository: getIt<WeatherRepository>(),
   );
 
   final _themeCubit = GetIt.I<ThemeCubit>();
 
   var currentDate = DateFormat('EEEE, d MMMM').format(DateTime.now());
-  String imageURL = "";
-  String location = "Moscow";
-
-  var selectedCities = City.getSelectedCities();
-  List<String> cities = ["Moscow"];
 
   @override
   void initState() {
-    _weatherBloc.add(LoadWeatherScreen(location: location));
-    for (int i = 0; i < selectedCities.length; i++) {
-      cities.add(selectedCities[i].city);
-    }
+    _weatherBloc.add(
+      LoadWeatherScreen(),
+    );
     super.initState();
   }
 
@@ -65,45 +60,28 @@ class _HomePageState extends State<HomePage> {
         ],
         automaticallyImplyLeading: true,
         centerTitle: true,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/pin.png',
-              width: 20,
-            ),
-            const SizedBox(
-              width: 4,
-            ),
-            DropdownButtonHideUnderline(
-              child: DropdownButton(
-                alignment: const Alignment(0, 0),
-                value: location,
-                icon: const Icon(Icons.keyboard_arrow_down),
-                items: cities.map((String location) {
-                  return DropdownMenuItem(
-                    alignment: const Alignment(0, 0),
-                    value: location,
-                    child: Text(location),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(
-                    () {
-                      location = newValue!;
-                      _weatherBloc.add(LoadWeatherScreen(location: location));
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
+        title: BlocBuilder<WeatherScreenBloc, WeatherScreenState>(
+          bloc: _weatherBloc,
+          builder: (context, state) {
+            if (state is WeatherScreenBlocLoaded) {
+              return Text(
+                state.currentWeatherInfo.name,
+              );
+            }
+            if (state is WeatherScreenBlocFailure) {
+              return const Center(
+                child: Text('Request failed'),
+              );
+            }
+            return const Text('Loading...');
+          },
         ),
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          return _weatherBloc.add(LoadWeatherScreen(location: location));
+          return _weatherBloc.add(
+            LoadWeatherScreen(),
+          );
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -117,7 +95,7 @@ class _HomePageState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        location,
+                        state.currentWeatherInfo.name,
                         style: const TextStyle(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
@@ -177,11 +155,12 @@ class _HomePageState extends State<HomePage> {
                 );
               }
               if (state is WeatherScreenBlocFailure) {
-                return const Center(
-                  child: Text('Request failed'),
+                return Center(
+                  child: Text('${state.exception}'),
                 );
               }
               return const Center(
+                heightFactor: 10,
                 child: CircularProgressIndicator(),
               );
             },

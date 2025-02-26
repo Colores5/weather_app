@@ -17,7 +17,11 @@ class CurrentWeather {
   @JsonKey(name: 'weather')
   final List<WeatherDiscription> weather;
 
+  @JsonKey(name: 'name')
+  final String name;
+
   CurrentWeather({
+    required this.name,
     required this.wind,
     required this.main,
     required this.weather,

@@ -8,6 +8,7 @@ part of 'current_weather.dart';
 
 CurrentWeather _$CurrentWeatherFromJson(Map<String, dynamic> json) =>
     CurrentWeather(
+      name: json['name'] as String,
       wind: Wind.fromJson(json['wind'] as Map<String, dynamic>),
       main: Main.fromJson(json['main'] as Map<String, dynamic>),
       weather: (json['weather'] as List<dynamic>)
@@ -20,4 +21,5 @@ Map<String, dynamic> _$CurrentWeatherToJson(CurrentWeather instance) =>
       'wind': instance.wind,
       'main': instance.main,
       'weather': instance.weather,
+      'name': instance.name,
     };
