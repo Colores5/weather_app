@@ -1,3 +1,3 @@
 # weather_app
 
-A new Flutter project.
+Just another weather app project.
