@@ -117,7 +117,7 @@ class _HomePageState extends State<HomePage> {
                               state.currentWeatherInfo.weather[0].stateName,
                           description:
                               state.currentWeatherInfo.weather[0].description,
-                          temp: state.currentWeatherInfo.main.temp),
+                          temp: state.currentWeatherInfo.main.maxTemp),
                       const SizedBox(
                         height: 30,
                       ),
