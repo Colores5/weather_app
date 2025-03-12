@@ -11,22 +11,13 @@ class WeatherScreenBloc extends Bloc<WeatherScreenEvent, WeatherScreenState> {
     required WeatherRepository weatherRepository,
   })  : _weatherRepository = weatherRepository,
         super(WeatherScreenBlocInitial()) {
-    // on<LoadingWeatherScreen>(_determinePosition);
     on<LoadWeatherScreen>(_searchWeather);
   }
 
-  // FutureOr<void> _determinePosition(event, emit) async {
-  //   try {
-  //     final currentPositionInfo = await _locationRepository.determinePosition();
-  //     emit(
-  //       WeatherScreenBlocLoading(currentPosition: currentPositionInfo),
-  //     );
-  //   } on Exception catch (e) {
-  //     emit(WeatherScreenBlocFailure(exception: e));
-  //   }
-  // }
-
-  FutureOr<void> _searchWeather(event, emit) async {
+  FutureOr<void> _searchWeather(
+    LoadWeatherScreen event,
+    Emitter<WeatherScreenState> emit,
+  ) async {
     try {
       final currentPosition = await _weatherRepository.determinePosition();
       final currentWeatherInfo =

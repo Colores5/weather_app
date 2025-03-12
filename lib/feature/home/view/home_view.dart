@@ -1,9 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
-import 'package:weather_app/feature/home/bloc/cubit/theme_cubit.dart';
 import 'package:weather_app/feature/home/bloc/weather_screen_bloc.dart';
 import 'package:weather_app/main.dart';
 import 'package:weather_app/weather_app.dart';
@@ -23,9 +21,7 @@ class _HomePageState extends State<HomePage> {
     weatherRepository: getIt<WeatherRepository>(),
   );
 
-  final _themeCubit = GetIt.I<ThemeCubit>();
-
-  var currentDate = DateFormat('EEEE, d MMMM').format(DateTime.now());
+  final currentDate = DateFormat('EEEE, d MMMM').format(DateTime.now());
 
   @override
   void initState() {
@@ -45,35 +41,23 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          const Icon(Icons.sunny),
-          BlocBuilder<ThemeCubit, ThemeState>(
-            builder: (context, state) {
-              return Switch(
-                value: state.themeMode == ThemeMode.dark,
-                onChanged: (value) {
-                  _themeCubit.toggleTheme(value);
-                },
-              );
-            },
-          )
-        ],
         automaticallyImplyLeading: true,
         centerTitle: true,
         title: BlocBuilder<WeatherScreenBloc, WeatherScreenState>(
           bloc: _weatherBloc,
           builder: (context, state) {
-            if (state is WeatherScreenBlocLoaded) {
-              return Text(
-                state.currentWeatherInfo.name,
-              );
+            switch (state) {
+              case WeatherScreenBlocLoaded():
+                return Text(
+                  state.currentWeatherInfo.name,
+                );
+              case WeatherScreenBlocFailure():
+                return const Center(
+                  child: Text('Request failed'),
+                );
+              default:
+                return const Text('Loading...');
             }
-            if (state is WeatherScreenBlocFailure) {
-              return const Center(
-                child: Text('Request failed'),
-              );
-            }
-            return const Text('Loading...');
           },
         ),
       ),
@@ -88,71 +72,72 @@ class _HomePageState extends State<HomePage> {
           child: BlocBuilder<WeatherScreenBloc, WeatherScreenState>(
             bloc: _weatherBloc,
             builder: (context, state) {
-              if (state is WeatherScreenBlocLoaded) {
-                return Container(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        state.currentWeatherInfo.name,
-                        style: const TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
+              switch (state) {
+                case WeatherScreenBlocLoaded():
+                  return Container(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          state.currentWeatherInfo.name,
+                          style: const TextStyle(
+                            fontSize: 36,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      Text(
-                        currentDate,
-                      ),
-                      const SizedBox(
-                        height: 50,
-                      ),
-                      MainWeatherInfo(
-                          myConstants: myConstants,
-                          imageURL: state
-                              .currentWeatherInfo.weather[0].stateName
-                              .replaceAll(' ', '')
-                              .toLowerCase(),
-                          stateName:
-                              state.currentWeatherInfo.weather[0].stateName,
-                          description:
-                              state.currentWeatherInfo.weather[0].description,
-                          temp: state.currentWeatherInfo.main.maxTemp),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 40,
+                        Text(
+                          currentDate,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            WeatherItemInfo(
-                              value: state.currentWeatherInfo.wind.speed,
-                              text: 'Wind Speed',
-                              unit: 'km/h',
-                              url: 'windspeed',
-                            ),
-                            WeatherItemInfo(
-                              value: state.currentWeatherInfo.main.humidity,
-                              text: 'Humidity',
-                              unit: '%',
-                              url: 'humidity',
-                            ),
-                            WeatherItemInfo(
-                              value:
-                                  state.currentWeatherInfo.main.maxTemp.round(),
-                              text: 'Max Temp',
-                              unit: '°',
-                              url: 'max-temp',
-                            ),
-                          ],
+                        const SizedBox(
+                          height: 50,
                         ),
-                      ),
-                    ],
-                  ),
-                );
+                        MainWeatherInfo(
+                            myConstants: myConstants,
+                            imageURL: state
+                                .currentWeatherInfo.weather[0].stateName
+                                .replaceAll(' ', '')
+                                .toLowerCase(),
+                            stateName:
+                                state.currentWeatherInfo.weather[0].stateName,
+                            description:
+                                state.currentWeatherInfo.weather[0].description,
+                            temp: state.currentWeatherInfo.main.maxTemp),
+                        const SizedBox(
+                          height: 30,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 40,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              WeatherItemInfo(
+                                value: state.currentWeatherInfo.wind.speed,
+                                text: 'Wind Speed',
+                                unit: 'km/h',
+                                url: 'windspeed',
+                              ),
+                              WeatherItemInfo(
+                                value: state.currentWeatherInfo.main.humidity,
+                                text: 'Humidity',
+                                unit: '%',
+                                url: 'humidity',
+                              ),
+                              WeatherItemInfo(
+                                value: state.currentWeatherInfo.main.maxTemp
+                                    .round(),
+                                text: 'Max Temp',
+                                unit: '°',
+                                url: 'max-temp',
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
               }
               if (state is WeatherScreenBlocFailure) {
                 return Center(
