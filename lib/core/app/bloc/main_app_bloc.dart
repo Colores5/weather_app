@@ -11,12 +11,15 @@ part 'main_app_bloc.freezed.dart';
 
 class MainAppBloc extends Bloc<MainAppEvent, MainAppState> {
   final ThemeRepository _themeRepository;
+  final PrefsRepository _prefsRepository;
 
   StreamSubscription<ThemeStatus>? _themeSubscription;
 
   MainAppBloc({
     required ThemeRepository themeRepository,
+    required PrefsRepository prefsRepository,
   })  : _themeRepository = themeRepository,
+        _prefsRepository = prefsRepository,
         super(
           const MainAppState(),
         ) {
@@ -42,7 +45,12 @@ class MainAppBloc extends Bloc<MainAppEvent, MainAppState> {
   ) async {
     emit(
       state.copyWith(
-        theme: lightTheme,
+        themeStatus: _prefsRepository.setThemeStatus(
+          _prefsRepository.isDarkTheme(),
+        ),
+        theme: _themeRepository.getTheme(
+          _prefsRepository.isDarkTheme(),
+        ),
       ),
     );
   }
@@ -64,6 +72,8 @@ class MainAppBloc extends Bloc<MainAppEvent, MainAppState> {
     final theme = _themeRepository.getTheme(
       event.themeStatus.name,
     );
+
+    _prefsRepository.setThemeChange(event.themeStatus.name);
 
     emit(
       state.copyWith(

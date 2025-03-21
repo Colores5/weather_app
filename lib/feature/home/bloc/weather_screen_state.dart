@@ -1,19 +1,23 @@
 part of 'weather_screen_bloc.dart';
 
-class WeatherScreenState {}
+class WeatherScreenState {
+  final ThemeStatus themeStatus;
+  final CurrentWeather? currentWeatherInfo;
 
-class WeatherScreenBlocInitial extends WeatherScreenState {}
+  WeatherScreenState({
+    this.currentWeatherInfo,
+    this.themeStatus = ThemeStatus.light,
+  });
 
-// class WeatherScreenBlocLoading extends WeatherScreenState {
-//   final Position currentPosition;
-
-//   WeatherScreenBlocLoading({required this.currentPosition});
-// }
-
-class WeatherScreenBlocLoaded extends WeatherScreenState {
-  final CurrentWeather currentWeatherInfo;
-
-  WeatherScreenBlocLoaded({required this.currentWeatherInfo});
+  WeatherScreenState copyWith({
+    CurrentWeather? currentWeatherInfo,
+    ThemeStatus? themeStatus,
+  }) {
+    return WeatherScreenState(
+      currentWeatherInfo: currentWeatherInfo ?? this.currentWeatherInfo,
+      themeStatus: themeStatus ?? this.themeStatus,
+    );
+  }
 }
 
 class WeatherScreenBlocFailure extends WeatherScreenState {

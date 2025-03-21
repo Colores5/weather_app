@@ -3,8 +3,6 @@ import 'package:rxdart/rxdart.dart';
 import 'package:weather_app/weather_app.dart';
 
 class ThemeRepository {
-  ThemeRepository();
-
   final _themeSubject = BehaviorSubject<ThemeStatus>();
 
   Stream<ThemeStatus> get themeStream => _themeSubject.stream;
